@@ -119,7 +119,7 @@
           const badge = document.createElement('span');
           badge.className = 'card-badge';
           badge.textContent = 'Latest';
-          t.append(' ', badge);
+          cover.append(badge);
         }
         btn.append(cover, t, d);
         btn.addEventListener('click', () => show(issue, { scroll: true }));

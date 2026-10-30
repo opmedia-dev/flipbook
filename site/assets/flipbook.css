@@ -46,7 +46,7 @@ html.fb-embedded, html.fb-embedded body { overflow: hidden; }
 .issue-date { margin: .15rem 0 0; color: var(--fb-muted); font-size: .9rem; }
 .back-latest { display: inline-flex; align-items: center; gap: .35rem; margin-top: .6rem; padding: .45rem 1rem .45rem .75rem; border: 1.5px solid var(--fb-accent); border-radius: 999px; background: #fff; color: var(--fb-accent); font: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; transition: background .15s, color .15s; }
 .back-latest:hover, .back-latest:focus-visible { background: var(--fb-accent); color: #fff; }
-.card-badge { display: inline-block; vertical-align: 1px; margin-left: .25rem; padding: .1rem .5rem; border-radius: 999px; background: var(--fb-accent); color: #fff; font-size: .7rem; font-weight: 600; }
+.card-badge { position: absolute; top: 6px; left: 6px; padding: .1rem .45rem; border-radius: 999px; background: var(--fb-accent); color: #fff; font-size: .68rem; font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,.25); }
 
 .cta { display: flex; justify-content: center; margin-top: 14px; }
 .cta a { display: inline-block; padding: .7rem 1.4rem; border-radius: 999px; background: var(--fb-accent); color: #fff; text-decoration: none; font-weight: 600; }
