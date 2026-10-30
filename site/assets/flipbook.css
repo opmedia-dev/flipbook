@@ -62,3 +62,5 @@ html.fb-embedded, html.fb-embedded body { overflow: hidden; }
 .card-date { color: var(--fb-muted); font-size: .85rem; }
 .empty { color: var(--fb-muted); }
 .card-date:empty, .issue-date:empty { display: none; }
+[hidden] { display: none !important; }
+.fb-page { box-shadow: 0 1px 8px rgba(0,0,0,.18); }

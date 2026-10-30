@@ -43,10 +43,19 @@ export function reportHeight() {
   if (!embedded) return;
   document.documentElement.classList.add('fb-embedded');
   let last = 0;
+  let lastWidth = 0;
   const send = () => {
     const h = Math.ceil(document.documentElement.getBoundingClientRect().height);
+    const w = window.innerWidth;
     if (window.scrollY) window.scrollTo(0, 0);
-    if (Math.abs(h - last) > 1) { last = h; postToParent({ type: 'height', height: h }); }
+    // Growing the iframe can add a scrollbar to the host page, narrowing the
+    // iframe and shrinking the book; skip that shrink to avoid a resize loop.
+    const narrowedShrink = h < last && w < lastWidth;
+    if (Math.abs(h - last) > 1 && !narrowedShrink) {
+      last = h;
+      postToParent({ type: 'height', height: h });
+    }
+    lastWidth = w;
   };
   new ResizeObserver(send).observe(document.documentElement);
   window.addEventListener('load', send);
