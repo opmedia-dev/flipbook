@@ -39,8 +39,10 @@ const canCover = has('pdftoppm');
 const canInfo = has('pdfinfo');
 if (!canCover) console.warn('pdftoppm not found: covers will be rendered in the browser instead.');
 
+// PDFs in pdfs/ and its subfolders, as paths relative to pdfs/.
 const files = fs.existsSync(srcPdfs)
-  ? fs.readdirSync(srcPdfs).filter((f) => f.toLowerCase().endsWith('.pdf'))
+  ? fs.readdirSync(srcPdfs, { recursive: true }).map(String)
+    .filter((f) => f.toLowerCase().endsWith('.pdf'))
   : [];
 
 const used = new Set();
@@ -63,7 +65,10 @@ const issues = files.map((name) => {
     } catch { /* ignore */ }
   }
   const added = created || uploaded;
-  let id = slugify(path.basename(name, '.pdf'));
+  // Archive heading: the subfolder name, else the year of the date above.
+  const folder = path.dirname(name) === '.' ? '' : name.split(path.sep)[0];
+  const group = folder || String(new Date(added).getUTCFullYear());
+  let id = slugify([folder, path.basename(name, path.extname(name))].filter(Boolean).join(' '));
   while (used.has(id)) id += '-1';
   used.add(id);
 
@@ -78,11 +83,15 @@ const issues = files.map((name) => {
     } catch (e) { console.warn(`Cover failed for ${name}: ${e.message}`); }
   }
 
-  return { id, title: titleFromName(name), added, file: `pdfs/${id}.pdf`, cover, pages,
+  return { id, title: titleFromName(name), added, group, file: `pdfs/${id}.pdf`, cover, pages,
     sizeBytes: fs.statSync(abs).size };
 });
 
-issues.sort((a, b) => new Date(b.added) - new Date(a.added) || a.title.localeCompare(b.title));
+// Headings highest first, year-like names ahead of others; newest first within each.
+const isYear = (g) => /^\d{4}$/.test(g);
+issues.sort((a, b) => (isYear(b.group) - isYear(a.group)) ||
+  b.group.localeCompare(a.group, undefined, { numeric: true }) ||
+  new Date(b.added) - new Date(a.added) || a.title.localeCompare(b.title));
 
 const fingerprintFile = path.join(root, '.drive-fingerprint');
 const driveFingerprint = fs.existsSync(fingerprintFile) ? fs.readFileSync(fingerprintFile, 'utf8').trim() : undefined;
@@ -91,4 +100,4 @@ fs.writeFileSync(path.join(out, 'issues.json'),
 fs.writeFileSync(path.join(out, '.nojekyll'), '');
 
 console.log(`Built ${issues.length} issue(s) into _site/`);
-for (const i of issues) console.log(`  ${i.added}  ${i.title}  (${i.file})`);
+for (const i of issues) console.log(`  [${i.group}]  ${i.added}  ${i.title}  (${i.file})`);

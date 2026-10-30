@@ -7,8 +7,8 @@ GitHub Pages, so no server is needed.
 - **Home page preview** – `preview.html`: the latest issue as a compact flipbook,
   with an optional "View all issues" button linking to your issues page.
 - **Issues page** – `library.html`: the latest issue as a large flipbook, with an
-  archive of previous issues below, grouped under year headings (from each PDF's
-  creation date). Clicking an archive cover opens it in the flipbook.
+  archive of previous issues below, grouped under a heading per Drive subfolder
+  (e.g. `2026`, `2025`). Clicking an archive cover opens it in the flipbook.
 - **Embed codes** – `index.html`: copy-paste snippets for Duda.
 
 Live site: https://opmedia-dev.github.io/flipbook/
@@ -20,8 +20,12 @@ Everything is done in the Google Drive folder:
 - **Add** a PDF → it appears within ~15 minutes as the latest issue.
 - **Delete** a PDF → it disappears at the next sync.
 - **Rename** a PDF → the title changes at the next sync.
+- **Years:** keep each year's issues in a subfolder named after the year (`2026`, `2025`, …).
+  Each subfolder becomes an archive heading, highest first; the latest issue is the newest
+  PDF in the top folder. Non-year subfolders (e.g. `Specials`) are listed after the years.
+  PDFs left directly in the main folder are grouped by the year they were created.
 
-Order is newest first by the date the PDF was created/exported (stored inside the
+Within a folder, order is newest first by the date the PDF was created/exported (stored inside the
 PDF), so uploading issues out of order is fine; if a PDF has no creation date, its
 upload time is used. The title is the file name without `.pdf`. To publish immediately,
 open [Actions → Build and deploy flipbook](https://github.com/opmedia-dev/flipbook/actions/workflows/deploy.yml),
