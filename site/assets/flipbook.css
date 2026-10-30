@@ -1,0 +1,63 @@
+:root {
+  --fb-bg: transparent;
+  --fb-accent: #1f3a5f;
+  --fb-text: #1d1d1f;
+  --fb-muted: #6b6b70;
+  --fb-card: #ffffff;
+  --fb-font: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { background: var(--fb-bg); color: var(--fb-text); font-family: var(--fb-font); line-height: 1.4; }
+html.fb-embedded, html.fb-embedded body { overflow: hidden; }
+
+.fb { position: relative; width: 100%; }
+.fb-stage { position: relative; width: 100%; min-height: 200px; display: flex; justify-content: center; }
+.fb-sizer { width: 100%; margin: 0 auto; transition: transform .5s ease; }
+.fb-sizer.fb-shift-left { transform: translateX(-25%); }
+.fb-sizer.fb-shift-right { transform: translateX(25%); }
+.fb-book { margin: 0 auto; }
+.fb-page { background: #fff; overflow: hidden; }
+.fb-page-inner { position: relative; width: 100%; height: 100%; background: #fff; }
+.fb-page-inner > img, .fb-page-inner > canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: contain; }
+.fb-loading { position: absolute; inset: 0; display: flex; gap: .6rem; align-items: center; justify-content: center; color: var(--fb-muted); font-size: .95rem; }
+.fb-spinner { width: 22px; height: 22px; border-radius: 50%; border: 3px solid currentColor; border-right-color: transparent; animation: fb-spin .8s linear infinite; }
+@keyframes fb-spin { to { transform: rotate(360deg); } }
+
+.fb-bar { display: flex; align-items: center; justify-content: center; gap: .4rem; padding: .6rem 0 0; }
+.fb-spacer { width: 1rem; }
+.fb-counter { min-width: 6.5em; text-align: center; font-variant-numeric: tabular-nums; font-size: .9rem; color: var(--fb-muted); }
+.fb-btn { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(0,0,0,.12); background: #fff; color: var(--fb-accent); cursor: pointer; padding: 0; text-decoration: none; transition: background .15s, color .15s; }
+.fb-btn:hover:not(:disabled) { background: var(--fb-accent); color: #fff; }
+.fb-btn:disabled { opacity: .35; cursor: default; }
+.fb-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.fb-btn[hidden] { display: none; }
+
+.fb:fullscreen { background: #2b2b2e; padding: 12px; display: flex; flex-direction: column; justify-content: center; }
+.fb:fullscreen .fb-counter { color: #ddd; }
+
+.fb-error { padding: 2rem 1rem; text-align: center; color: var(--fb-muted); }
+
+/* Page layouts */
+.wrap { max-width: 1200px; margin: 0 auto; padding: 16px; }
+.issue-head { text-align: center; margin: 0 0 12px; }
+.issue-kicker { text-transform: uppercase; letter-spacing: .08em; font-size: .75rem; color: var(--fb-accent); font-weight: 600; margin: 0; }
+.issue-title { margin: .2rem 0 0; font-size: clamp(1.2rem, 2.5vw, 1.7rem); }
+.issue-date { margin: .15rem 0 0; color: var(--fb-muted); font-size: .9rem; }
+.back-latest { margin-left: .6rem; color: var(--fb-accent); background: none; border: 0; cursor: pointer; font: inherit; text-decoration: underline; padding: 0; }
+
+.cta { display: flex; justify-content: center; margin-top: 14px; }
+.cta a { display: inline-block; padding: .7rem 1.4rem; border-radius: 999px; background: var(--fb-accent); color: #fff; text-decoration: none; font-weight: 600; }
+.cta a:hover { filter: brightness(1.12); }
+
+.archive { margin-top: 40px; }
+.archive h2 { font-size: 1.25rem; margin: 0 0 14px; padding-bottom: 8px; border-bottom: 2px solid var(--fb-accent); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 18px; list-style: none; padding: 0; margin: 0; }
+.card { display: flex; flex-direction: column; text-align: left; width: 100%; border: 0; background: none; padding: 0; cursor: pointer; font: inherit; color: inherit; }
+.card-cover { position: relative; width: 100%; aspect-ratio: 1 / 1.414; background: #eee; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.15); transition: transform .2s, box-shadow .2s; }
+.card-cover img, .card-cover canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card:hover .card-cover, .card:focus-visible .card-cover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,.2); }
+.card[aria-current="true"] .card-cover { outline: 3px solid var(--fb-accent); outline-offset: 3px; }
+.card-title { font-weight: 600; margin-top: 8px; font-size: .95rem; }
+.card-date { color: var(--fb-muted); font-size: .85rem; }
+.empty { color: var(--fb-muted); }

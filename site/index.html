@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flipbook – embed codes</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="assets/flipbook.css">
+  <style>
+    body { background: #f5f5f7; }
+    .wrap { max-width: 900px; }
+    section { background: #fff; border-radius: 10px; padding: 18px 20px; margin: 18px 0; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+    h1 { margin: 8px 0 0; } h2 { margin-top: 0; font-size: 1.15rem; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; font-size: .9rem; }
+    input { width: 100%; padding: .55rem .7rem; border: 1px solid #ccc; border-radius: 6px; font: inherit; }
+    textarea { width: 100%; height: 150px; font: 12px/1.45 ui-monospace, Menlo, Consolas, monospace; padding: .6rem; border-radius: 6px; border: 1px solid #ccc; background: #fafafa; }
+    .row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+    button.copy { padding: .5rem 1rem; border-radius: 6px; border: 0; background: var(--fb-accent); color: #fff; font-weight: 600; cursor: pointer; }
+    ol li { margin: .3rem 0; } code { background: #eef; padding: 0 .25rem; border-radius: 3px; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td { padding: 4px 8px 4px 0; border-bottom: 1px solid #eee; vertical-align: top; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Flipbook embeds</h1>
+    <p>Copy these into a Duda <strong>HTML widget</strong>. Published issues: <strong id="count">…</strong></p>
+
+    <section>
+      <h2>Settings</h2>
+      <label for="link">Archive page URL on your Duda site (used by the home page "View all issues" button)</label>
+      <input id="link" type="url" placeholder="https://www.example.co.uk/newsletters">
+      <label for="accent">Accent colour (hex, optional)</label>
+      <input id="accent" type="text" placeholder="#1f3a5f">
+    </section>
+
+    <section>
+      <h2>1. Home page preview (latest issue)</h2>
+      <textarea id="code-preview" readonly></textarea>
+      <div class="row"><button class="copy" data-target="code-preview">Copy code</button> <a id="open-preview" target="_blank">Open preview</a></div>
+    </section>
+
+    <section>
+      <h2>2. Issues page (latest issue + archive)</h2>
+      <textarea id="code-library" readonly></textarea>
+      <div class="row"><button class="copy" data-target="code-library">Copy code</button> <a id="open-library" target="_blank">Open library</a></div>
+    </section>
+
+    <section>
+      <h2>Adding, removing or renaming issues</h2>
+      <ol>
+        <li>Name the PDF <code>YYYY-MM-DD Title.pdf</code> (or <code>YYYY-MM Title.pdf</code>), e.g. <code>2026-10 Autumn Newsletter.pdf</code>. The date controls the order; the newest is shown first.</li>
+        <li>Go to <a id="upload-link" target="_blank">Upload files to the pdfs folder</a>, drag the PDF in and press <strong>Commit changes</strong>.</li>
+        <li>Wait about a minute — the site rebuilds automatically and both embeds update.</li>
+        <li>To remove or rename an issue, open the <a id="folder-link" target="_blank">pdfs folder</a>, click the file, then use the <strong>…</strong> menu to delete it, or the pencil icon to rename it.</li>
+      </ol>
+    </section>
+  </main>
+  <script type="module">
+    import { loadIssues } from './assets/common.js';
+
+    const REPO = 'opmedia-dev/flipbook';
+    const BRANCH = 'main';
+    document.getElementById('upload-link').href = `https://github.com/${REPO}/upload/${BRANCH}/pdfs`;
+    document.getElementById('folder-link').href = `https://github.com/${REPO}/tree/${BRANCH}/pdfs`;
+
+    loadIssues().then((list) => { document.getElementById('count').textContent = list.length; })
+      .catch(() => { document.getElementById('count').textContent = 'unknown'; });
+
+    const base = new URL('.', location.href).href;
+    const origin = location.origin;
+
+    function listener() {
+      return `<script>
+(function(){if(window.__flipbookListener)return;window.__flipbookListener=1;
+window.addEventListener('message',function(e){
+if(e.origin!=='${origin}'||!e.data||e.data.source!=='flipbook')return;
+var frames=document.querySelectorAll('iframe[data-flipbook]');
+for(var i=0;i<frames.length;i++){if(frames[i].contentWindow!==e.source)continue;
+if(e.data.type==='height')frames[i].style.height=e.data.height+'px';
+if(e.data.type==='scrollToTop')frames[i].scrollIntoView({behavior:'smooth',block:'start'});}
+});})();
+<\/script>`;
+    }
+
+    function iframe(page, query, height, title) {
+      const qs = query.toString();
+      const src = `${base}${page}${qs ? `?${qs}` : ''}`;
+      return { src, html: `<iframe data-flipbook src="${src.replace(/&/g, '&amp;').replace(/"/g, '&quot;')}" title="${title}" style="width:100%;height:${height}px;border:0;display:block" allow="fullscreen" loading="lazy"></iframe>\n${listener()}` };
+    }
+
+    function update() {
+      const q = new URLSearchParams();
+      const link = document.getElementById('link').value.trim();
+      const accent = document.getElementById('accent').value.trim().replace(/^#/, '');
+      if (accent) q.set('accent', accent);
+      const pq = new URLSearchParams(q);
+      if (link) pq.set('link', link);
+      const p = iframe('preview.html', pq, 700, 'Latest issue');
+      const l = iframe('library.html', q, 1400, 'Issues');
+      document.getElementById('code-preview').value = p.html;
+      document.getElementById('code-library').value = l.html;
+      document.getElementById('open-preview').href = p.src;
+      document.getElementById('open-library').href = l.src;
+    }
+    document.querySelectorAll('input').forEach((i) => i.addEventListener('input', update));
+    document.querySelectorAll('button.copy').forEach((b) => b.addEventListener('click', async () => {
+      const ta = document.getElementById(b.dataset.target);
+      ta.select();
+      try { await navigator.clipboard.writeText(ta.value); } catch { document.execCommand('copy'); }
+      b.textContent = 'Copied!';
+      setTimeout(() => { b.textContent = 'Copy code'; }, 1500);
+    }));
+    update();
+  </script>
+</body>
+</html>

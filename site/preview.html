@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Latest issue – flipbook preview</title>
+  <link rel="stylesheet" href="assets/vendor/page-flip/stPageFlip.css">
+  <link rel="stylesheet" href="assets/flipbook.css">
+  <script src="assets/vendor/page-flip/page-flip.browser.js"></script>
+</head>
+<body>
+  <main class="wrap">
+    <header class="issue-head" id="head" hidden>
+      <p class="issue-kicker" id="kicker">Latest issue</p>
+      <h1 class="issue-title" id="title"></h1>
+      <p class="issue-date" id="date"></p>
+    </header>
+    <div id="book"></div>
+    <div class="cta" id="cta" hidden><a id="cta-link" target="_top"></a></div>
+  </main>
+  <script type="module">
+    import { createFlipbook } from './assets/flipbook.js';
+    import { params, applyTheme, loadIssues, assetUrl, formatDate, viewerUrl, reportHeight, showError } from './assets/common.js';
+
+    applyTheme();
+    reportHeight();
+    const host = document.getElementById('book');
+    try {
+      const issues = await loadIssues();
+      const issue = params.get('id') ? issues.find((i) => i.id === params.get('id')) : issues[0];
+      if (!issue) throw new Error('No issues have been published yet.');
+
+      if (params.get('title') !== '0') {
+        document.getElementById('head').hidden = false;
+        if (params.get('kicker')) document.getElementById('kicker').textContent = params.get('kicker');
+        document.getElementById('title').textContent = issue.title;
+        document.getElementById('date').textContent = formatDate(issue);
+      }
+      const link = params.get('link');
+      if (link && /^https?:\/\//i.test(link)) {
+        const a = document.getElementById('cta-link');
+        a.href = link;
+        a.textContent = params.get('linkText') || 'View all issues';
+        document.getElementById('cta').hidden = false;
+      }
+      await createFlipbook(host, assetUrl(issue.file), {
+        coverUrl: assetUrl(issue.cover),
+        downloadName: `${issue.title}.pdf`,
+        fullscreenFallbackUrl: viewerUrl(issue),
+        maxHeight: Number(params.get('maxHeight')) || 520,
+      });
+    } catch (e) {
+      console.error(e);
+      showError(host, e.message || 'Sorry, the flipbook could not be loaded.');
+    }
+  </script>
+</body>
+</html>

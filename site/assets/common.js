@@ -1,0 +1,64 @@
+export const params = new URLSearchParams(location.search);
+
+export function applyTheme() {
+  const root = document.documentElement.style;
+  const map = { bg: '--fb-bg', accent: '--fb-accent', text: '--fb-text', font: '--fb-font' };
+  for (const [key, cssVar] of Object.entries(map)) {
+    const v = params.get(key);
+    if (v) root.setProperty(cssVar, /^[0-9a-f]{3,8}$/i.test(v) ? `#${v}` : v);
+  }
+}
+
+export async function loadIssues() {
+  const res = await fetch(new URL('../issues.json', import.meta.url), { cache: 'no-cache' });
+  if (!res.ok) throw new Error(`Could not load issues.json (${res.status})`);
+  const data = await res.json();
+  return data.issues || [];
+}
+
+export function assetUrl(rel) {
+  return rel ? new URL(`../${rel}`, import.meta.url).href : null;
+}
+
+export function formatDate(issue) {
+  const d = new Date(`${issue.date}T12:00:00Z`);
+  const opts = issue.precision === 'month'
+    ? { month: 'long', year: 'numeric' }
+    : { day: 'numeric', month: 'long', year: 'numeric' };
+  return d.toLocaleDateString('en-GB', { ...opts, timeZone: 'UTC' });
+}
+
+export function viewerUrl(issue) {
+  const u = new URL('../viewer.html', import.meta.url);
+  u.searchParams.set('id', issue.id);
+  return u.href;
+}
+
+const embedded = window.parent !== window;
+
+export function postToParent(msg) {
+  if (embedded) window.parent.postMessage({ source: 'flipbook', ...msg }, '*');
+}
+
+// Lets the host page (Duda) size the iframe to its content.
+export function reportHeight() {
+  if (!embedded) return;
+  document.documentElement.classList.add('fb-embedded');
+  let last = 0;
+  const send = () => {
+    const h = Math.ceil(document.documentElement.getBoundingClientRect().height);
+    if (window.scrollY) window.scrollTo(0, 0);
+    if (Math.abs(h - last) > 1) { last = h; postToParent({ type: 'height', height: h }); }
+  };
+  new ResizeObserver(send).observe(document.documentElement);
+  window.addEventListener('load', send);
+  send();
+}
+
+export function showError(host, message) {
+  host.innerHTML = '';
+  const p = document.createElement('p');
+  p.className = 'fb-error';
+  p.textContent = message;
+  host.append(p);
+}

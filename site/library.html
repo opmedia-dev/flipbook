@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Issues – flipbook library</title>
+  <link rel="stylesheet" href="assets/vendor/page-flip/stPageFlip.css">
+  <link rel="stylesheet" href="assets/flipbook.css">
+  <script src="assets/vendor/page-flip/page-flip.browser.js"></script>
+</head>
+<body>
+  <main class="wrap">
+    <section id="viewer" aria-live="polite">
+      <header class="issue-head">
+        <p class="issue-kicker" id="kicker">Latest issue</p>
+        <h1 class="issue-title" id="title"></h1>
+        <p class="issue-date"><span id="date"></span><button type="button" class="back-latest" id="back" hidden>Back to latest issue</button></p>
+      </header>
+      <div id="book"></div>
+    </section>
+    <section class="archive" id="archive" hidden>
+      <h2 id="archive-heading">Archive</h2>
+      <ul class="grid" id="grid"></ul>
+    </section>
+  </main>
+  <script type="module">
+    import { createFlipbook, loadPdf, renderPageToCanvas } from './assets/flipbook.js';
+    import { params, applyTheme, loadIssues, assetUrl, formatDate, viewerUrl, reportHeight, postToParent, showError } from './assets/common.js';
+
+    applyTheme();
+    reportHeight();
+    if (params.get('archiveTitle')) document.getElementById('archive-heading').textContent = params.get('archiveTitle');
+
+    const host = document.getElementById('book');
+    const maxHeight = Number(params.get('maxHeight')) || 760;
+    let current = null;
+    let issues = [];
+
+    async function show(issue, { scroll = false } = {}) {
+      current?.destroy();
+      current = null;
+      const latest = issue === issues[0];
+      document.getElementById('kicker').textContent = latest ? (params.get('kicker') || 'Latest issue') : 'From the archive';
+      document.getElementById('title').textContent = issue.title;
+      document.getElementById('date').textContent = formatDate(issue);
+      document.getElementById('back').hidden = latest;
+      document.querySelectorAll('.card').forEach((c) => c.setAttribute('aria-current', String(c.dataset.id === issue.id)));
+      if (scroll) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        postToParent({ type: 'scrollToTop' });
+      }
+      try {
+        current = await createFlipbook(host, assetUrl(issue.file), {
+          coverUrl: assetUrl(issue.cover),
+          downloadName: `${issue.title}.pdf`,
+          fullscreenFallbackUrl: viewerUrl(issue),
+          maxHeight,
+        });
+      } catch (e) {
+        console.error(e);
+        showError(host, 'Sorry, this issue could not be loaded.');
+      }
+    }
+
+    async function fallbackCover(issue, box) {
+      try {
+        const pdf = await loadPdf(assetUrl(issue.file));
+        box.append(await renderPageToCanvas(pdf, 1, 320));
+        pdf.destroy();
+      } catch { /* leave grey placeholder */ }
+    }
+
+    function buildArchive(list) {
+      const grid = document.getElementById('grid');
+      for (const issue of list) {
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'card';
+        btn.dataset.id = issue.id;
+        const cover = document.createElement('div');
+        cover.className = 'card-cover';
+        if (issue.cover) {
+          const img = document.createElement('img');
+          img.src = assetUrl(issue.cover);
+          img.alt = '';
+          img.loading = 'lazy';
+          cover.append(img);
+        } else {
+          fallbackCover(issue, cover);
+        }
+        const t = document.createElement('span');
+        t.className = 'card-title';
+        t.textContent = issue.title;
+        const d = document.createElement('span');
+        d.className = 'card-date';
+        d.textContent = formatDate(issue);
+        btn.append(cover, t, d);
+        btn.addEventListener('click', () => show(issue, { scroll: true }));
+        li.append(btn);
+        grid.append(li);
+      }
+      document.getElementById('archive').hidden = list.length === 0;
+    }
+
+    try {
+      issues = await loadIssues();
+      if (!issues.length) throw new Error('No issues have been published yet.');
+      buildArchive(issues.slice(1));
+      document.getElementById('back').addEventListener('click', () => show(issues[0], { scroll: true }));
+      await show(issues[0]);
+    } catch (e) {
+      console.error(e);
+      showError(host, e.message || 'Sorry, the flipbook could not be loaded.');
+    }
+  </script>
+</body>
+</html>
