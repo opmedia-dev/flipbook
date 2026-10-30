@@ -69,7 +69,7 @@ URL options (query string on `preview.html` / `library.html`):
 
 | Option | Example | Effect |
 | --- | --- | --- |
-| `accent` | `accent=1f3a5f` | Button/heading colour |
+| `accent` | `accent=7a1424` | Button/heading colour |
 | `bg` | `bg=ffffff` | Background (transparent by default) |
 | `text` | `text=222222` | Text colour |
 | `link` | `link=https://site/issues` | Preview only: "View all issues" button target |
