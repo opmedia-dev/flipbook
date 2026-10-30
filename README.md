@@ -20,8 +20,9 @@ Everything is done in the Google Drive folder:
 - **Delete** a PDF → it disappears at the next sync.
 - **Rename** a PDF → the title changes at the next sync.
 
-Order is by upload time, newest first; the title is the file name without `.pdf`.
-When loading a back-catalogue, upload the oldest issues first. To publish immediately,
+Order is newest first by the date the PDF was created/exported (stored inside the
+PDF), so uploading issues out of order is fine; if a PDF has no creation date, its
+upload time is used. The title is the file name without `.pdf`. To publish immediately,
 open [Actions → Build and deploy flipbook](https://github.com/opmedia-dev/flipbook/actions/workflows/deploy.yml),
 press **Run workflow**. Sync errors (e.g. a revoked API key) show as failed runs there,
 and GitHub emails the repo owner.
@@ -69,7 +70,7 @@ URL options (query string on `preview.html` / `library.html`):
 | `link` | `link=https://site/issues` | Preview only: "View all issues" button target |
 | `linkText` | `linkText=Read+more` | Preview only: button label |
 | `title` | `title=0` | Preview only: hide the title |
-| `dates` | `dates=1` | Show the upload date under titles |
+| `dates` | `dates=1` | Show the PDF's creation date under titles |
 | `kicker` | `kicker=This+month` | Label above the title (default "Latest issue") |
 | `archiveTitle` | `archiveTitle=Past+issues` | Library only: archive heading |
 | `maxHeight` | `maxHeight=600` | Max book height in px (preview 520, library 760) |

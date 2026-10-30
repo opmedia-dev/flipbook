@@ -46,9 +46,23 @@ const files = fs.existsSync(srcPdfs)
 const used = new Set();
 const issues = files.map((name) => {
   const abs = path.join(srcPdfs, name);
-  // Newest first by when the file was added: git history for files committed to
-  // pdfs/, otherwise the file time (sync-drive.mjs sets it to the Drive upload time).
-  const added = gitAddedDate(path.join('pdfs', name)) || fs.statSync(abs).mtime.toISOString();
+  // Newest first by the PDF's own creation date (when it was exported), which
+  // tracks publication order even if issues are uploaded out of order. Falls back
+  // to when the file was added: git history for files committed to pdfs/, else the
+  // file time (sync-drive.mjs sets it to the Drive upload time).
+  const uploaded = gitAddedDate(path.join('pdfs', name)) || fs.statSync(abs).mtime.toISOString();
+  let created = null;
+  let pages = null;
+  if (canInfo) {
+    try {
+      const info = execFileSync('pdfinfo', ['-isodates', abs], { encoding: 'utf8' });
+      pages = Number(info.match(/^Pages:\s+(\d+)/m)?.[1]) || null;
+      const raw = info.match(/^CreationDate:\s+(\S+)/m)?.[1];
+      const d = raw && new Date(raw.replace(/([+-]\d{2})$/, '$1:00'));
+      if (d && !Number.isNaN(d.getTime())) created = d.toISOString();
+    } catch { /* ignore */ }
+  }
+  const added = created || uploaded;
   let id = slugify(path.basename(name, '.pdf'));
   while (used.has(id)) id += '-1';
   used.add(id);
@@ -62,14 +76,6 @@ const issues = files.map((name) => {
         '-jpeg', '-jpegopt', 'quality=82', abs, path.join(out, 'covers', id)]);
       cover = `covers/${id}.jpg`;
     } catch (e) { console.warn(`Cover failed for ${name}: ${e.message}`); }
-  }
-
-  let pages = null;
-  if (canInfo) {
-    try {
-      const info = execFileSync('pdfinfo', [abs], { encoding: 'utf8' });
-      pages = Number(info.match(/^Pages:\s+(\d+)/m)?.[1]) || null;
-    } catch { /* ignore */ }
   }
 
   return { id, title: titleFromName(name), added, file: `pdfs/${id}.pdf`, cover, pages,

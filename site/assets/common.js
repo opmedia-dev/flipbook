@@ -20,7 +20,7 @@ export function assetUrl(rel) {
   return rel ? new URL(`../${rel}`, import.meta.url).href : null;
 }
 
-// Dates are the upload date, so they are only shown when asked for (?dates=1).
+// Dates are PDF creation/upload dates, not publication dates, so only shown with ?dates=1.
 export function formatDate(issue) {
   if (params.get('dates') !== '1' || !issue.added) return '';
   return new Date(issue.added).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
