@@ -28,7 +28,17 @@ if (!folderId || !apiKey) fail('GDRIVE_FOLDER_ID and GDRIVE_API_KEY must both be
 async function drive(urlPath, params) {
   const url = new URL(`${API}${urlPath}`);
   for (const [k, v] of Object.entries({ ...params, key: apiKey })) url.searchParams.set(k, v);
-  const res = await fetch(url);
+  let res;
+  // Google sometimes throttles bursts of downloads (403 "Sorry..." page / 429); retry with backoff.
+  for (let attempt = 0; ; attempt++) {
+    res = await fetch(url);
+    const throttled = res.status === 429 || res.status >= 500 ||
+      (res.status === 403 && /rateLimit|userRateLimit|Sorry/i.test(await res.clone().text()));
+    if (!throttled || attempt >= 5) break;
+    const wait = 2 ** attempt * 2000;
+    console.log(`  Drive throttled (${res.status}); retrying in ${wait / 1000}s`);
+    await new Promise((r) => setTimeout(r, wait));
+  }
   if (!res.ok) {
     const body = await res.text();
     fail(`Google Drive API ${res.status} for ${urlPath}: ${body.slice(0, 500)}\n` +
@@ -117,6 +127,7 @@ for (const f of files) {
   const created = new Date(f.createdTime || f.modifiedTime || Date.now());
   fs.utimesSync(out, created, created);
   console.log(`  downloaded ${name}`);
+  await new Promise((r) => setTimeout(r, 500));
 }
 fs.writeFileSync(path.join(root, '.drive-fingerprint'), fingerprint);
 setOutput('changed', 'true');
