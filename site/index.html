@@ -48,10 +48,9 @@
     <section>
       <h2>Adding, removing or renaming issues</h2>
       <ol>
-        <li>Name the PDF <code>YYYY-MM-DD Title.pdf</code> (or <code>YYYY-MM Title.pdf</code>), e.g. <code>2026-10 Autumn Newsletter.pdf</code>. The date controls the order; the newest is shown first.</li>
-        <li>Go to <a id="upload-link" target="_blank">Upload files to the pdfs folder</a>, drag the PDF in and press <strong>Commit changes</strong>.</li>
-        <li>Wait about a minute — the site rebuilds automatically and both embeds update.</li>
-        <li>To remove or rename an issue, open the <a id="folder-link" target="_blank">pdfs folder</a>, click the file, then use the <strong>…</strong> menu to delete it, or the pencil icon to rename it.</li>
+        <li>Add the PDF to the shared Google Drive folder. The newest upload is shown first; the file name (without ".pdf") is used as the title.</li>
+        <li>Within about 15 minutes the site picks it up and both embeds update. To publish straight away, open <a id="run-link" target="_blank">the deploy workflow</a> and press <strong>Run workflow</strong>.</li>
+        <li>Delete or rename a file in Drive and the site follows at the next sync.</li>
       </ol>
     </section>
   </main>
@@ -59,9 +58,7 @@
     import { loadIssues } from './assets/common.js';
 
     const REPO = 'opmedia-dev/flipbook';
-    const BRANCH = 'main';
-    document.getElementById('upload-link').href = `https://github.com/${REPO}/upload/${BRANCH}/pdfs`;
-    document.getElementById('folder-link').href = `https://github.com/${REPO}/tree/${BRANCH}/pdfs`;
+    document.getElementById('run-link').href = `https://github.com/${REPO}/actions/workflows/deploy.yml`;
 
     loadIssues().then((list) => { document.getElementById('count').textContent = list.length; })
       .catch(() => { document.getElementById('count').textContent = 'unknown'; });

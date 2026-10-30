@@ -1,8 +1,8 @@
 # Flipbook
 
-Turns the PDFs in [`pdfs/`](pdfs/) into page-turning flipbooks that can be embedded
-on a Duda site (or any site) with an HTML widget. Hosted for free on GitHub Pages,
-so no server is needed.
+Turns the PDFs in a shared Google Drive folder into page-turning flipbooks that can
+be embedded on a Duda site (or any site) with an HTML widget. Hosted for free on
+GitHub Pages, so no server is needed.
 
 - **Home page preview** – `preview.html`: the latest issue as a compact flipbook,
   with an optional "View all issues" button linking to your issues page.
@@ -14,16 +14,42 @@ Live site: https://opmedia-dev.github.io/flipbook/
 
 ## Managing issues
 
-1. Name the PDF `YYYY-MM-DD Title.pdf` or `YYYY-MM Title.pdf` (e.g. `2026-10 Autumn Newsletter.pdf`).
-   The date sets the order and the rest becomes the title. Undated files use their upload date.
-2. Upload it at <https://github.com/opmedia-dev/flipbook/upload/main/pdfs> and press **Commit changes**.
-3. About a minute later the GitHub Action ([`deploy.yml`](.github/workflows/deploy.yml))
-   has rebuilt the site and both embeds show the new issue. Progress is visible in the
-   [Actions tab](https://github.com/opmedia-dev/flipbook/actions).
+Everything is done in the Google Drive folder:
 
-To remove or rename an issue, open it in the `pdfs` folder on GitHub and delete it
-(… menu) or rename it (pencil icon). GitHub's web upload is limited to 25 MB per file –
-compress larger PDFs (e.g. "Reduce file size" in Acrobat/Preview) before uploading.
+- **Add** a PDF → it appears within ~15 minutes as the latest issue.
+- **Delete** a PDF → it disappears at the next sync.
+- **Rename** a PDF → the title changes at the next sync.
+
+Order is by upload time, newest first; the title is the file name without `.pdf`.
+When loading a back-catalogue, upload the oldest issues first. To publish immediately,
+open [Actions → Build and deploy flipbook](https://github.com/opmedia-dev/flipbook/actions/workflows/deploy.yml),
+press **Run workflow**. Sync errors (e.g. a revoked API key) show as failed runs there,
+and GitHub emails the repo owner.
+
+## One-time setup
+
+1. **GitHub Pages:** repo Settings → Pages → Source: **GitHub Actions**.
+2. **Drive folder:** create a folder in Google Drive, then Share → General access:
+   **Anyone with the link** (Viewer). Copy the folder ID, the part after
+   `/folders/` in its URL.
+3. **API key:** in [Google Cloud Console](https://console.cloud.google.com/):
+   1. Create a project (any name).
+   2. APIs & Services → Library → **Google Drive API** → Enable.
+   3. APIs & Services → Credentials → Create credentials → **API key**.
+      Edit the key → API restrictions → Restrict key → **Google Drive API** → Save.
+4. **GitHub settings:** repo Settings → Secrets and variables → Actions:
+   - *Secrets* tab → New repository secret `GDRIVE_API_KEY` = the API key.
+   - *Variables* tab → New repository variable `GDRIVE_FOLDER_ID` = the folder ID.
+5. Run the workflow once (Actions → Build and deploy flipbook → Run workflow).
+
+The sync runs every 15 minutes but only rebuilds when the folder has changed
+(`scripts/sync-drive.mjs` compares a fingerprint of the folder listing with the one
+in the deployed `issues.json`). GitHub pauses scheduled workflows in public repos
+after 60 days without activity; the workflow re-enables itself on each run to try
+to avoid that, but if syncing ever stops, press **Run workflow** or **Enable workflow**
+on the Actions page.
+
+Note: everything in the Drive folder becomes public on the website.
 
 ## Embedding in Duda
 
@@ -42,26 +68,28 @@ URL options (query string on `preview.html` / `library.html`):
 | `text` | `text=222222` | Text colour |
 | `link` | `link=https://site/issues` | Preview only: "View all issues" button target |
 | `linkText` | `linkText=Read+more` | Preview only: button label |
-| `title` | `title=0` | Preview only: hide the title/date |
+| `title` | `title=0` | Preview only: hide the title |
+| `dates` | `dates=1` | Show the upload date under titles |
 | `kicker` | `kicker=This+month` | Label above the title (default "Latest issue") |
 | `archiveTitle` | `archiveTitle=Past+issues` | Library only: archive heading |
 | `maxHeight` | `maxHeight=600` | Max book height in px (preview 520, library 760) |
-| `id` | `id=2026-07-summer-newsletter` | Preview only: show a specific issue |
+| `id` | `id=autumn-newsletter` | Preview only: show a specific issue |
 
 ## How it works
 
-`scripts/build.mjs` copies `site/` and `pdfs/` into `_site/`, renders a cover
-thumbnail per PDF with poppler (`pdftoppm`), and writes `issues.json`. The pages
-render PDFs in the browser with [PDF.js](https://mozilla.github.io/pdf.js/) and
-animate them with [StPageFlip](https://github.com/Nodlik/StPageFlip) (both vendored
-under `site/assets/vendor/`, Apache-2.0 and MIT licensed).
-
-One-time setup: **Settings → Pages → Source: GitHub Actions**.
+`.github/workflows/deploy.yml` runs `scripts/sync-drive.mjs` (downloads the Drive
+PDFs into `pdfs/`) and `scripts/build.mjs` (copies `site/` and the PDFs into `_site/`,
+renders cover thumbnails with poppler's `pdftoppm`, writes `issues.json`), then deploys
+to Pages. PDFs committed to `pdfs/` are published as well. The pages render PDFs in
+the browser with [PDF.js](https://mozilla.github.io/pdf.js/) and animate them with
+[StPageFlip](https://github.com/Nodlik/StPageFlip) (vendored under `site/assets/vendor/`,
+Apache-2.0 and MIT licensed).
 
 ### Local development
 
 ```sh
 sudo apt-get install poppler-utils   # optional, for cover thumbnails
+GDRIVE_FOLDER_ID=... GDRIVE_API_KEY=... node scripts/sync-drive.mjs   # optional
 node scripts/build.mjs
 python3 -m http.server -d _site 8080
 ```

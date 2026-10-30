@@ -20,12 +20,10 @@ export function assetUrl(rel) {
   return rel ? new URL(`../${rel}`, import.meta.url).href : null;
 }
 
+// Dates are the upload date, so they are only shown when asked for (?dates=1).
 export function formatDate(issue) {
-  const d = new Date(`${issue.date}T12:00:00Z`);
-  const opts = issue.precision === 'month'
-    ? { month: 'long', year: 'numeric' }
-    : { day: 'numeric', month: 'long', year: 'numeric' };
-  return d.toLocaleDateString('en-GB', { ...opts, timeZone: 'UTC' });
+  if (params.get('dates') !== '1' || !issue.added) return '';
+  return new Date(issue.added).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 export function viewerUrl(issue) {

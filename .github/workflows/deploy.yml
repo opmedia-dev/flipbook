@@ -3,37 +3,73 @@ name: Build and deploy flipbook
 on:
   push:
     branches: [main]
+  schedule:
+    - cron: '*/15 * * * *'
   workflow_dispatch:
+    inputs:
+      force:
+        description: Rebuild even if the Google Drive folder is unchanged
+        type: boolean
+        default: false
 
 permissions:
+  actions: write
   contents: read
   pages: write
   id-token: write
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.drive.outputs.changed || 'true' }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Sync PDFs from Google Drive
+        id: drive
+        if: vars.GDRIVE_FOLDER_ID != ''
+        env:
+          GDRIVE_FOLDER_ID: ${{ vars.GDRIVE_FOLDER_ID }}
+          GDRIVE_API_KEY: ${{ secrets.GDRIVE_API_KEY }}
+          SITE_URL: ${{ github.event_name == 'schedule' && format('https://{0}.github.io/{1}/', github.repository_owner, github.event.repository.name) || '' }}
+          FORCE: ${{ inputs.force || 'false' }}
+        run: node scripts/sync-drive.mjs
+
       - name: Install poppler (cover thumbnails)
+        if: steps.drive.outputs.changed != 'false'
         run: sudo apt-get update && sudo apt-get install -y poppler-utils
+
       - name: Build site
+        if: steps.drive.outputs.changed != 'false'
         run: node scripts/build.mjs
+
       - uses: actions/upload-pages-artifact@v3
+        if: steps.drive.outputs.changed != 'false'
         with:
           path: _site
 
+      # GitHub pauses scheduled workflows in public repos after 60 days without
+      # commits; re-enabling via the API keeps the Drive sync running.
+      - name: Keep schedule alive
+        if: github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/deploy.yml/enable" || true
+
   deploy:
     needs: build
+    if: needs.build.outputs.changed != 'false'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
