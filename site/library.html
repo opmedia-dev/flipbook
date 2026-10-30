@@ -25,7 +25,7 @@
   </main>
   <script type="module">
     import { createFlipbook, loadPdf, renderPageToCanvas } from './assets/flipbook.js';
-    import { params, applyTheme, loadIssues, assetUrl, formatDate, viewerUrl, reportHeight, postToParent, showError } from './assets/common.js';
+    import { params, applyTheme, loadIssues, assetUrl, formatDate, viewerUrl, toolsParam, reportHeight, postToParent, showError } from './assets/common.js';
 
     applyTheme();
     reportHeight();
@@ -53,6 +53,9 @@
         current = await createFlipbook(host, assetUrl(issue.file), {
           coverUrl: assetUrl(issue.cover),
           downloadName: `${issue.title}.pdf`,
+          title: issue.title,
+          shareUrl: viewerUrl(issue),
+          tools: toolsParam(),
           fullscreenFallbackUrl: viewerUrl(issue),
           maxHeight,
         });

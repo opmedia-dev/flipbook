@@ -16,7 +16,7 @@
   </main>
   <script type="module">
     import { createFlipbook } from './assets/flipbook.js';
-    import { params, loadIssues, assetUrl, formatDate, showError } from './assets/common.js';
+    import { params, loadIssues, assetUrl, formatDate, viewerUrl, toolsParam, showError } from './assets/common.js';
 
     const host = document.getElementById('book');
     try {
@@ -29,6 +29,9 @@
       await createFlipbook(host, assetUrl(issue.file), {
         coverUrl: assetUrl(issue.cover),
         downloadName: `${issue.title}.pdf`,
+        title: issue.title,
+        shareUrl: viewerUrl(issue),
+        tools: toolsParam(),
         maxHeight: () => window.innerHeight - 150,
       });
     } catch (e) {

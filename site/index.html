@@ -82,7 +82,7 @@ if(e.data.type==='scrollToTop')frames[i].scrollIntoView({behavior:'smooth',block
     function iframe(page, query, height, title) {
       const qs = query.toString();
       const src = `${base}${page}${qs ? `?${qs}` : ''}`;
-      return { src, html: `<iframe data-flipbook src="${src.replace(/&/g, '&amp;').replace(/"/g, '&quot;')}" title="${title}" style="width:100%;height:${height}px;border:0;display:block" allow="fullscreen" loading="lazy"></iframe>\n${listener()}` };
+      return { src, html: `<iframe data-flipbook src="${src.replace(/&/g, '&amp;').replace(/"/g, '&quot;')}" title="${title}" style="width:100%;height:${height}px;border:0;display:block" allow="fullscreen; web-share; clipboard-write" loading="lazy"></iframe>\n${listener()}` };
     }
 
     function update() {

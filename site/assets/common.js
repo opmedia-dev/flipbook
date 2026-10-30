@@ -16,6 +16,13 @@ export async function loadIssues() {
   return data.issues || [];
 }
 
+// ?tools=search,zoom,share,print,download,fullscreen (or "none"); omitted = all.
+export function toolsParam() {
+  const raw = params.get('tools');
+  if (raw == null) return undefined;
+  return raw === 'none' ? [] : raw.split(',').map((t) => t.trim()).filter(Boolean);
+}
+
 export function assetUrl(rel) {
   return rel ? new URL(`../${rel}`, import.meta.url).href : null;
 }

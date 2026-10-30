@@ -75,6 +75,12 @@ URL options (query string on `preview.html` / `library.html`):
 | `archiveTitle` | `archiveTitle=Past+issues` | Library only: archive heading |
 | `maxHeight` | `maxHeight=600` | Max book height in px (preview 520, library 760) |
 | `id` | `id=autumn-newsletter` | Preview only: show a specific issue |
+| `tools` | `tools=search,zoom,download` | Toolbar tools to show (any of `search,zoom,share,print,download,fullscreen`, or `none`); default all |
+
+Toolbar: first/previous/next/last page, search (text in the PDF), zoom (pannable, 150–400%),
+share (native share sheet, else copies a direct link to the issue's `viewer.html`), print,
+download and full screen. Keyboard: arrows, Home/End, Esc. Snippets need
+`allow="fullscreen; web-share; clipboard-write"` on the iframe for full screen and share.
 
 ## How it works
 

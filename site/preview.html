@@ -20,7 +20,7 @@
   </main>
   <script type="module">
     import { createFlipbook } from './assets/flipbook.js';
-    import { params, applyTheme, loadIssues, assetUrl, formatDate, viewerUrl, reportHeight, showError } from './assets/common.js';
+    import { params, applyTheme, loadIssues, assetUrl, formatDate, viewerUrl, toolsParam, reportHeight, showError } from './assets/common.js';
 
     applyTheme();
     reportHeight();
@@ -46,6 +46,9 @@
       await createFlipbook(host, assetUrl(issue.file), {
         coverUrl: assetUrl(issue.cover),
         downloadName: `${issue.title}.pdf`,
+        title: issue.title,
+        shareUrl: viewerUrl(issue),
+        tools: toolsParam(),
         fullscreenFallbackUrl: viewerUrl(issue),
         maxHeight: Number(params.get('maxHeight')) || 520,
       });
