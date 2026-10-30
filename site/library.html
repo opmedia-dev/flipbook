@@ -14,7 +14,8 @@
       <header class="issue-head">
         <p class="issue-kicker" id="kicker">Latest issue</p>
         <h1 class="issue-title" id="title"></h1>
-        <p class="issue-date"><span id="date"></span><button type="button" class="back-latest" id="back" hidden>Back to latest issue</button></p>
+        <p class="issue-date" id="date"></p>
+        <button type="button" class="back-latest" id="back" hidden><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Back to latest issue</button>
       </header>
       <div id="book"></div>
     </section>
@@ -45,6 +46,7 @@
       document.getElementById('date').textContent = formatDate(issue);
       document.getElementById('back').hidden = latest;
       document.querySelectorAll('.card').forEach((c) => c.setAttribute('aria-current', String(c.dataset.id === issue.id)));
+      syncArchive(issue);
       if (scroll) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
         postToParent({ type: 'scrollToTop' });
@@ -75,6 +77,18 @@
 
     function yearOf(issue) {
       return issue.group || (issue.added ? String(new Date(issue.added).getUTCFullYear()) : 'Other');
+    }
+
+    // The latest issue's card only appears while an older issue is open.
+    function syncArchive(open) {
+      const latestCard = document.querySelector(`.card[data-id="${CSS.escape(issues[0].id)}"]`);
+      latestCard.closest('li').hidden = open === issues[0];
+      for (const grid of document.querySelectorAll('#groups .grid')) {
+        const empty = ![...grid.children].some((li) => !li.hidden);
+        grid.hidden = empty;
+        grid.previousElementSibling.hidden = empty;
+      }
+      document.getElementById('archive').hidden = !document.querySelector('#groups li:not([hidden])');
     }
 
     function buildArchive(list) {
@@ -114,18 +128,23 @@
         const d = document.createElement('span');
         d.className = 'card-date';
         d.textContent = formatDate(issue);
+        if (issue === issues[0]) {
+          const badge = document.createElement('span');
+          badge.className = 'card-badge';
+          badge.textContent = 'Latest';
+          t.append(' ', badge);
+        }
         btn.append(cover, t, d);
         btn.addEventListener('click', () => show(issue, { scroll: true }));
         li.append(btn);
         grid.append(li);
       }
-      document.getElementById('archive').hidden = list.length === 0;
     }
 
     try {
       issues = await loadIssues();
       if (!issues.length) throw new Error('No issues have been published yet.');
-      buildArchive(issues.slice(1));
+      buildArchive(issues);
       document.getElementById('back').addEventListener('click', () => show(issues[0], { scroll: true }));
       await show(issues[0]);
     } catch (e) {
