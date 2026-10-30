@@ -14,7 +14,8 @@
       <header class="issue-head">
         <p class="issue-kicker" id="kicker">Latest issue</p>
         <h1 class="issue-title" id="title"></h1>
-        <p class="issue-date"><span id="date"></span><button type="button" class="back-latest" id="back" hidden>Back to latest issue</button></p>
+        <p class="issue-date" id="date"></p>
+        <button type="button" class="back-latest" id="back" hidden><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Back to latest issue</button>
       </header>
       <div id="book"></div>
     </section>
@@ -114,6 +115,12 @@
         const d = document.createElement('span');
         d.className = 'card-date';
         d.textContent = formatDate(issue);
+        if (issue === issues[0]) {
+          const badge = document.createElement('span');
+          badge.className = 'card-badge';
+          badge.textContent = 'Latest';
+          cover.append(badge);
+        }
         btn.append(cover, t, d);
         btn.addEventListener('click', () => show(issue, { scroll: true }));
         li.append(btn);
@@ -125,7 +132,7 @@
     try {
       issues = await loadIssues();
       if (!issues.length) throw new Error('No issues have been published yet.');
-      buildArchive(issues.slice(1));
+      buildArchive(issues);
       document.getElementById('back').addEventListener('click', () => show(issues[0], { scroll: true }));
       await show(issues[0]);
     } catch (e) {
