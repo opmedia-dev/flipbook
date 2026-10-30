@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flipbook</title>
+  <link rel="stylesheet" href="assets/vendor/page-flip/stPageFlip.css">
+  <link rel="stylesheet" href="assets/flipbook.css">
+  <style>body { background: #2b2b2e; color: #eee; } .issue-date, .fb-counter { color: #bbb; } .wrap { max-width: none; }</style>
+  <script src="assets/vendor/page-flip/page-flip.browser.js"></script>
+</head>
+<body>
+  <main class="wrap">
+    <header class="issue-head"><h1 class="issue-title" id="title"></h1><p class="issue-date" id="date"></p></header>
+    <div id="book"></div>
+  </main>
+  <script type="module">
+    import { createFlipbook } from './assets/flipbook.js';
+    import { params, loadIssues, assetUrl, formatDate, viewerUrl, toolsParam, showError } from './assets/common.js';
+
+    const host = document.getElementById('book');
+    try {
+      const issues = await loadIssues();
+      const issue = issues.find((i) => i.id === params.get('id')) || issues[0];
+      if (!issue) throw new Error('No issues have been published yet.');
+      document.title = issue.title;
+      document.getElementById('title').textContent = issue.title;
+      document.getElementById('date').textContent = formatDate(issue);
+      await createFlipbook(host, assetUrl(issue.file), {
+        coverUrl: assetUrl(issue.cover),
+        downloadName: `${issue.title}.pdf`,
+        title: issue.title,
+        shareUrl: viewerUrl(issue),
+        tools: toolsParam(),
+        maxHeight: () => window.innerHeight - 150,
+      });
+    } catch (e) {
+      console.error(e);
+      showError(host, e.message || 'Sorry, the flipbook could not be loaded.');
+    }
+  </script>
+</body>
+</html>
