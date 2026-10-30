@@ -60,7 +60,14 @@ function safeName(name) {
   return `${base || 'untitled'}.pdf`;
 }
 
-const files = await listPdfs();
+// Identical uploads (e.g. "Issue (1).pdf") would show twice; keep the oldest copy.
+const files = [];
+const seen = new Set();
+for (const f of (await listPdfs()).sort((a, b) => (a.createdTime || '').localeCompare(b.createdTime || ''))) {
+  if (f.md5Checksum && seen.has(f.md5Checksum)) { console.log(`  skipping duplicate ${f.name}`); continue; }
+  if (f.md5Checksum) seen.add(f.md5Checksum);
+  files.push(f);
+}
 const fingerprint = crypto.createHash('sha256')
   .update(JSON.stringify(files.map((f) => [f.id, f.name, f.md5Checksum || f.modifiedTime]).sort()))
   .digest('hex').slice(0, 16);
