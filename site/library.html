@@ -20,7 +20,7 @@
     </section>
     <section class="archive" id="archive" hidden>
       <h2 id="archive-heading">Archive</h2>
-      <ul class="grid" id="grid"></ul>
+      <div id="groups"></div>
     </section>
   </main>
   <script type="module">
@@ -73,9 +73,25 @@
       } catch { /* leave grey placeholder */ }
     }
 
+    function yearOf(issue) {
+      return issue.added ? String(new Date(issue.added).getUTCFullYear()) : 'Other';
+    }
+
     function buildArchive(list) {
-      const grid = document.getElementById('grid');
+      const groups = document.getElementById('groups');
+      const grids = new Map();
       for (const issue of list) {
+        const year = yearOf(issue);
+        let grid = grids.get(year);
+        if (!grid) {
+          const h = document.createElement('h3');
+          h.className = 'archive-year';
+          h.textContent = year;
+          grid = document.createElement('ul');
+          grid.className = 'grid';
+          grids.set(year, grid);
+          groups.append(h, grid);
+        }
         const li = document.createElement('li');
         const btn = document.createElement('button');
         btn.type = 'button';
