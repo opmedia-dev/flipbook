@@ -26,8 +26,12 @@
     reportHeight();
     const host = document.getElementById('book');
     const compact = params.get('compact') === '1';
-    // In compact mode, CSS places the magazine before its linked title.
+    // Touchscreen phones need a smaller, predictable preview height than the
+    // interactive PDF reader can guarantee inside a narrow Duda iframe.
+    // Open the full reader in a new tab when the cover is tapped.
+    const mobileCover = compact && window.matchMedia('(max-width: 600px) and (pointer: coarse)').matches;
     document.documentElement.classList.toggle('fb-compact', compact);
+    document.documentElement.classList.toggle('fb-mobile-cover-only', mobileCover);
     try {
       const issues = await loadIssues();
       const issue = params.get('id') ? issues.find((i) => i.id === params.get('id')) : issues[0];
@@ -60,16 +64,42 @@
         a.textContent = params.get('linkText') || 'View all issues';
         document.getElementById('cta').hidden = false;
       }
-      await createFlipbook(host, assetUrl(issue.file), {
-        coverUrl: assetUrl(issue.cover),
-        downloadName: `${issue.title}.pdf`,
-        title: issue.title,
-        shareUrl: viewerUrl(issue),
-        tools: compact ? [] : toolsParam(),
-        fullscreenFallbackUrl: viewerUrl(issue),
-        maxHeight: Number(params.get('maxHeight')) || (compact ? 230 : 520),
-        minPageWidth: compact ? 170 : undefined,
-      });
+      if (mobileCover) {
+        const anchor = document.createElement('a');
+        anchor.className = 'fb-mobile-cover-link';
+        anchor.href = viewerUrl(issue);
+        anchor.target = '_blank';
+        anchor.rel = 'noopener noreferrer';
+        anchor.setAttribute('aria-label', `Open full ${issue.title} magazine`);
+        if (issue.cover) {
+          const cover = document.createElement('img');
+          cover.src = assetUrl(issue.cover);
+          cover.alt = `${issue.title} front cover`;
+          cover.loading = 'eager';
+          anchor.append(cover);
+        } else {
+          const placeholder = document.createElement('span');
+          placeholder.className = 'fb-mobile-cover-placeholder';
+          placeholder.textContent = 'Parish magazine';
+          anchor.append(placeholder);
+        }
+        const action = document.createElement('span');
+        action.className = 'fb-mobile-cover-action';
+        action.textContent = 'Open full magazine ↗';
+        anchor.append(action);
+        host.append(anchor);
+      } else {
+        await createFlipbook(host, assetUrl(issue.file), {
+          coverUrl: assetUrl(issue.cover),
+          downloadName: `${issue.title}.pdf`,
+          title: issue.title,
+          shareUrl: viewerUrl(issue),
+          tools: compact ? [] : toolsParam(),
+          fullscreenFallbackUrl: viewerUrl(issue),
+          maxHeight: Number(params.get('maxHeight')) || (compact ? 230 : 520),
+          minPageWidth: compact ? 170 : undefined,
+        });
+      }
     } catch (e) {
       console.error(e);
       showError(host, e.message || 'Sorry, the flipbook could not be loaded.');

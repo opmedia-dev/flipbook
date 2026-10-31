@@ -50,21 +50,26 @@ export function reportHeight() {
   if (!embedded) return;
   document.documentElement.classList.add('fb-embedded');
   let last = 0;
-  let lastWidth = 0;
+  // Measuring the <html> element can report the *iframe viewport height*
+  // rather than actual content and block legitimate shrinking on phones.
+  // The main wrapper gives us the intrinsic document height independently of
+  // the size Duda last assigned to the iframe.
+  const content = document.querySelector('main') || document.body;
   const send = () => {
-    const h = Math.ceil(document.documentElement.getBoundingClientRect().height);
-    const w = window.innerWidth;
-    if (window.scrollY) window.scrollTo(0, 0);
-    // Growing the iframe can add a scrollbar to the host page, narrowing the
-    // iframe and shrinking the book; skip that shrink to avoid a resize loop.
-    const narrowedShrink = h < last && w < lastWidth;
-    if (Math.abs(h - last) > 1 && !narrowedShrink) {
+    // Do not collapse the initial iframe before its asynchronous PDF or cover
+    // has rendered. An already visible loading placeholder keeps its existing
+    // starting height until real content is ready for accurate measurement.
+    if (!document.querySelector('.fb-ready, .fb-mobile-cover-link, .fb-error')) return;
+    const mobileImg = document.querySelector('.fb-mobile-cover-link img');
+    if (mobileImg && !mobileImg.complete) return;
+    const h = Math.max(80, Math.ceil(content.getBoundingClientRect().bottom));
+    if (Math.abs(h - last) > 1) {
       last = h;
       postToParent({ type: 'height', height: h });
     }
-    lastWidth = w;
   };
-  new ResizeObserver(send).observe(document.documentElement);
+  new ResizeObserver(send).observe(content);
+  window.addEventListener('resize', send);
   window.addEventListener('load', send);
   send();
 }
