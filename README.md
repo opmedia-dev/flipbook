@@ -61,9 +61,19 @@ Note: everything in the Drive folder becomes public on the website.
 
 Open <https://opmedia-dev.github.io/flipbook/>, enter your issues page URL and
 accent colour, then copy each snippet into an **HTML** widget in the Duda editor.
-The snippet includes a small script that resizes the iframe to fit its content;
-Duda only runs widget scripts on the preview/published site, so the widget may look
-a fixed size inside the editor.
+The snippet includes a small script that resizes the iframe to fit its content.
+The **home page** snippet uses `compact=1` and starts at **420px** tall (rather
+than the full reader's old 700px), with a narrower page and page-turning navigation
+only; click the issue title to open the full reader with all tools.
+Other pages, including the full issue archive, are unchanged. You must **recopy
+the home page snippet** into Duda after updating the Flipbook deployment.
+
+Duda may not run dynamic iframe-resizing scripts while editing. In the editor,
+give the HTML widget's containing column/section enough height to accommodate
+the approximately 420px embed and avoid a fixed shorter row or absolutely
+positioned content. Then check desktop, tablet and mobile in **site Preview**
+before publishing. Changing the iframe size cannot force a fixed-height Duda
+section to grow.
 
 URL options (query string on `preview.html` / `library.html`):
 
@@ -79,6 +89,7 @@ URL options (query string on `preview.html` / `library.html`):
 | `kicker` | `kicker=This+month` | Label above the title (default "Latest issue") |
 | `archiveTitle` | `archiveTitle=Past+issues` | Library only: archive heading |
 | `maxHeight` | `maxHeight=600` | Max book height in px (preview 520, library 760) |
+| `compact` | `compact=1` | Preview only: smaller page and navigation-only toolbar for narrow homepage widgets; opens full reader from the title |
 | `id` | `id=autumn-newsletter` | Preview only: show a specific issue |
 | `tools` | `tools=search,zoom,download` | Toolbar tools to show (any of `search,zoom,share,print,download,fullscreen`, or `none`); default all |
 
