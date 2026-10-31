@@ -61,6 +61,48 @@ html.fb-embedded, html.fb-embedded body { overflow: hidden; }
 .fb-compact .cta { order: 2; margin-top: 5px; }
 .fb-compact .cta a { padding: .35rem .7rem; font-size: .78rem; }
 
+/* Phones: a full PDF page can exceed a fixed-height Duda row even in compact
+   mode. Give touchscreen mobiles a small cover-link instead. The desktop
+   compact page-turner and full-size reader keep their existing behaviour. */
+.fb-mobile-cover-only .wrap { padding: 0 8px 6px; }
+.fb-mobile-cover-only #book { display: flex; justify-content: center; }
+.fb-mobile-cover-link {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px; width: min(100%, 190px); margin: 0 auto;
+  text-align: center; color: var(--fb-accent); text-decoration: none;
+}
+.fb-mobile-cover-link img {
+  display: block; width: auto; max-width: 100%; max-height: 230px;
+  height: auto; object-fit: contain; box-shadow: 0 2px 9px rgba(0,0,0,.18);
+}
+.fb-mobile-cover-action { font-size: .78rem; font-weight: 700; line-height: 1.25; }
+.fb-mobile-cover-link:hover .fb-mobile-cover-action,
+.fb-mobile-cover-link:focus-visible .fb-mobile-cover-action { text-decoration: underline; }
+.fb-mobile-cover-placeholder {
+  display: grid; place-items: center; width: 160px; height: 200px;
+  padding: 12px; background: #fff; font-size: 1rem; font-weight: 600;
+}
+.fb-mobile-cover-only .issue-head { margin-top: 3px; }
+.fb-mobile-cover-only .issue-title { font-size: .83rem; }
+
+/* The archive should use actual cover thumbnails on phones, rather than
+   turning every portrait issue into a nearly full-screen card. */
+@media (max-width: 600px) {
+  .archive .grid {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 12px; row-gap: 16px;
+  }
+  .archive .card { min-width: 0; }
+  .archive .card-cover { width: 100%; max-width: 180px; margin: 0 auto; }
+  .archive .card-title {
+    margin-top: 5px; font-size: .82rem; line-height: 1.3;
+    overflow-wrap: anywhere; display: -webkit-box;
+    -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .archive .card-date { font-size: .75rem; }
+}
+
+
 .issue-date { margin: .15rem 0 0; color: var(--fb-muted); font-size: .9rem; }
 .back-latest { display: inline-flex; align-items: center; gap: .35rem; margin-top: .6rem; padding: .45rem 1rem .45rem .75rem; border: 1.5px solid var(--fb-accent); border-radius: 999px; background: #fff; color: var(--fb-accent); font: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; transition: background .15s, color .15s; }
 .back-latest:hover, .back-latest:focus-visible { background: var(--fb-accent); color: #fff; }
