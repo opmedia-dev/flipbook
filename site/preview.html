@@ -25,6 +25,7 @@
     applyTheme();
     reportHeight();
     const host = document.getElementById('book');
+    const compact = params.get('compact') === '1';
     try {
       const issues = await loadIssues();
       const issue = params.get('id') ? issues.find((i) => i.id === params.get('id')) : issues[0];
@@ -33,7 +34,21 @@
       if (params.get('title') !== '0') {
         document.getElementById('head').hidden = false;
         if (params.get('kicker')) document.getElementById('kicker').textContent = params.get('kicker');
-        document.getElementById('title').textContent = issue.title;
+        const title = document.getElementById('title');
+        if (compact) {
+          // In narrow Duda homepage columns the toolbar is intentionally
+          // compact; the issue title still opens the full interactive reader.
+          const full = document.createElement('a');
+          full.href = viewerUrl(issue);
+          full.target = '_blank';
+          full.rel = 'noopener noreferrer';
+          full.className = 'fb-compact-full-link';
+          full.title = 'Open full magazine with all controls';
+          full.textContent = issue.title;
+          title.append(full);
+        } else {
+          title.textContent = issue.title;
+        }
         document.getElementById('date').textContent = formatDate(issue);
       }
       const link = params.get('link');
@@ -48,9 +63,10 @@
         downloadName: `${issue.title}.pdf`,
         title: issue.title,
         shareUrl: viewerUrl(issue),
-        tools: toolsParam(),
+        tools: compact ? [] : toolsParam(),
         fullscreenFallbackUrl: viewerUrl(issue),
-        maxHeight: Number(params.get('maxHeight')) || 520,
+        maxHeight: Number(params.get('maxHeight')) || (compact ? 230 : 520),
+        minPageWidth: compact ? 170 : undefined,
       });
     } catch (e) {
       console.error(e);
