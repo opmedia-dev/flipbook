@@ -62,15 +62,16 @@ Note: everything in the Drive folder becomes public on the website.
 Open <https://opmedia-dev.github.io/flipbook/>, enter your issues page URL and
 accent colour, then copy each snippet into an **HTML** widget in the Duda editor.
 The snippet includes a small script that resizes the iframe to fit its content.
-The **home page** snippet uses `compact=1` and starts at **420px** tall (rather
-than the full reader's old 700px), with a narrower page and page-turning navigation
-only; click the issue title to open the full reader with all tools.
+The **home page** snippet uses `compact=1` and starts at **360px** tall
+(rather than the original 700px). The cover is displayed first, with a small
+issue-title link beneath the page-turning navigation; click it to open the full
+reader with all tools.
 Other pages, including the full issue archive, are unchanged. You must **recopy
 the home page snippet** into Duda after updating the Flipbook deployment.
 
 Duda may not run dynamic iframe-resizing scripts while editing. In the editor,
 give the HTML widget's containing column/section enough height to accommodate
-the approximately 420px embed and avoid a fixed shorter row or absolutely
+the approximately 360px embed and avoid a fixed shorter row or absolutely
 positioned content. Then check desktop, tablet and mobile in **site Preview**
 before publishing. Changing the iframe size cannot force a fixed-height Duda
 section to grow.

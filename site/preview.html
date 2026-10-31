@@ -26,6 +26,8 @@
     reportHeight();
     const host = document.getElementById('book');
     const compact = params.get('compact') === '1';
+    // In compact mode, CSS places the magazine before its linked title.
+    document.documentElement.classList.toggle('fb-compact', compact);
     try {
       const issues = await loadIssues();
       const issue = params.get('id') ? issues.find((i) => i.id === params.get('id')) : issues[0];

@@ -45,7 +45,22 @@ html.fb-embedded, html.fb-embedded body { overflow: hidden; }
 .issue-title { margin: .2rem 0 0; font-size: clamp(1.2rem, 2.5vw, 1.7rem); }
 /* Compact homepage embed: title opens the full reader without an extra row. */
 .fb-compact-full-link { color: inherit; text-decoration: none; }
-.fb-compact-full-link:hover, .fb-compact-full-link:focus-visible { color: var(--fb-accent); text-decoration: underline; }
+.fb-compact-full-link:hover, .fb-compact-full-link:focus-visible { color: var(--fb-accent); text-decoration: underline; } 
+/* For the homepage's narrow fourth column, put the page-turning reader
+   first, then its small linked title. Keep the full preview unchanged. */
+.fb-compact .wrap {
+  display: flex;
+  flex-direction: column;
+  padding: 0 8px 6px;
+}
+.fb-compact #book { order: 0; }
+.fb-compact .issue-head { order: 1; margin: 4px 0 0; }
+.fb-compact .issue-kicker { display: none; }
+.fb-compact .issue-title { margin: 0; font-size: .86rem; line-height: 1.25; font-weight: 600; }
+.fb-compact .issue-date { margin: 0; font-size: .75rem; }
+.fb-compact .cta { order: 2; margin-top: 5px; }
+.fb-compact .cta a { padding: .35rem .7rem; font-size: .78rem; }
+
 .issue-date { margin: .15rem 0 0; color: var(--fb-muted); font-size: .9rem; }
 .back-latest { display: inline-flex; align-items: center; gap: .35rem; margin-top: .6rem; padding: .45rem 1rem .45rem .75rem; border: 1.5px solid var(--fb-accent); border-radius: 999px; background: #fff; color: var(--fb-accent); font: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; transition: background .15s, color .15s; }
 .back-latest:hover, .back-latest:focus-visible { background: var(--fb-accent); color: #fff; }

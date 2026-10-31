@@ -35,7 +35,7 @@
 
     <section>
       <h2>1. Home page preview (latest issue)</h2>
-      <p>The compact option is sized for a narrow Duda homepage column: page turning stays available and clicking the magazine title opens the full reader. The iframe starts at 420px high instead of 700px. Make sure the Duda section is tall enough to contain the widget, especially in the editor.</p>
+      <p>The compact option puts the magazine cover first, with a small linked issue title below its page-turning controls. The homepage iframe starts at 360px high. In Duda, allow enough column and section height; check the actual site preview as well as the editor.</p>
       <textarea id="code-preview" readonly></textarea>
       <div class="row"><button class="copy" data-target="code-preview">Copy code</button> <a id="open-preview" target="_blank">Open preview</a></div>
     </section>
@@ -94,7 +94,7 @@ if(e.data.type==='scrollToTop')frames[i].scrollIntoView({behavior:'smooth',block
       const pq = new URLSearchParams(q);
       if (link) pq.set('link', link);
       pq.set('compact', '1');
-      const p = iframe('preview.html', pq, 420, 'Latest issue');
+      const p = iframe('preview.html', pq, 360, 'Latest issue');
       const l = iframe('library.html', q, 1400, 'Issues');
       document.getElementById('code-preview').value = p.html;
       document.getElementById('code-library').value = l.html;
