@@ -56,6 +56,12 @@ export function reportHeight() {
   // the size Duda last assigned to the iframe.
   const content = document.querySelector('main') || document.body;
   const send = () => {
+    // Do not collapse the initial iframe before its asynchronous PDF or cover
+    // has rendered. An already visible loading placeholder keeps its existing
+    // starting height until real content is ready for accurate measurement.
+    if (!document.querySelector('.fb-ready, .fb-mobile-cover-link, .fb-error')) return;
+    const mobileImg = document.querySelector('.fb-mobile-cover-link img');
+    if (mobileImg && !mobileImg.complete) return;
     const h = Math.max(80, Math.ceil(content.getBoundingClientRect().bottom));
     if (Math.abs(h - last) > 1) {
       last = h;
