@@ -63,18 +63,22 @@ Open <https://opmedia-dev.github.io/flipbook/>, enter your issues page URL and
 accent colour, then copy each snippet into an **HTML** widget in the Duda editor.
 The snippet includes a small script that resizes the iframe to fit its content.
 The **home page** snippet uses `compact=1` and starts at **360px** tall
-(rather than the original 700px). The cover is displayed first, with a small
-issue-title link beneath the page-turning navigation; click it to open the full
-reader with all tools.
-Other pages, including the full issue archive, are unchanged. You must **recopy
-the home page snippet** into Duda after updating the Flipbook deployment.
+(rather than the original 700px). On desktop it displays a compact page-turning
+reader with a linked issue title. On touchscreen phones it displays a **small,
+height-limited front cover** instead of loading the oversized embedded PDF;
+tapping the cover or issue title opens the full interactive reader in a new tab.
+The mobile cover is capped at 230px tall. In the issues archive, mobile covers
+are presented in two compact columns rather than one full-width portrait per row.
+You must **recopy the home page snippet** into Duda after updating the Flipbook
+deployment if you still have an older pre-compact embed.
 
 Duda may not run dynamic iframe-resizing scripts while editing. In the editor,
 give the HTML widget's containing column/section enough height to accommodate
-the approximately 360px embed and avoid a fixed shorter row or absolutely
-positioned content. Then check desktop, tablet and mobile in **site Preview**
-before publishing. Changing the iframe size cannot force a fixed-height Duda
-section to grow.
+the approximately 360px starting embed and avoid a fixed shorter row or
+absolutely positioned content. The embed reports its **actual content height**
+after loading, allowing the iframe to shrink on mobile. Check desktop, tablet
+and mobile in **site Preview** before publishing. A Duda section with an
+explicitly fixed height may still need adjustment independently.
 
 URL options (query string on `preview.html` / `library.html`):
 
