@@ -36,6 +36,14 @@
     const maxHeight = Number(params.get('maxHeight')) || 760;
     let current = null;
     let issues = [];
+    const archiveGroups = new Map();
+
+    function expandYear(year, { toggle = false } = {}) {
+      const target = archiveGroups.get(year);
+      if (!target) return;
+      const shouldOpen = !toggle || !target.open;
+      for (const group of archiveGroups.values()) group.open = shouldOpen && group === target;
+    }
 
     async function show(issue, { scroll = false } = {}) {
       current?.destroy();
@@ -46,6 +54,8 @@
       document.getElementById('date').textContent = formatDate(issue);
       document.getElementById('back').hidden = latest;
       document.querySelectorAll('.card').forEach((c) => c.setAttribute('aria-current', String(c.dataset.id === issue.id)));
+      // Open the year containing the issue currently displayed in the reader.
+      expandYear(yearOf(issue));
       if (scroll) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
         postToParent({ type: 'scrollToTop' });
@@ -81,17 +91,40 @@
     function buildArchive(list) {
       const groups = document.getElementById('groups');
       const grids = new Map();
+      const counts = new Map();
+      for (const issue of list) counts.set(yearOf(issue), (counts.get(yearOf(issue)) || 0) + 1);
       for (const issue of list) {
         const year = yearOf(issue);
         let grid = grids.get(year);
         if (!grid) {
-          const h = document.createElement('h3');
-          h.className = 'archive-year';
-          h.textContent = year;
+          const section = document.createElement('details');
+          section.className = 'archive-group';
+          section.dataset.year = year;
+          const heading = document.createElement('summary');
+          heading.className = 'archive-year';
+          const name = document.createElement('span');
+          name.className = 'archive-year-label';
+          name.textContent = year;
+          const count = document.createElement('span');
+          count.className = 'archive-year-count';
+          const n = counts.get(year);
+          count.textContent = n + (n === 1 ? ' issue' : ' issues');
+          const chevron = document.createElement('span');
+          chevron.className = 'archive-year-chevron';
+          chevron.setAttribute('aria-hidden', 'true');
+          heading.append(name, count, chevron);
           grid = document.createElement('ul');
           grid.className = 'grid';
+          section.append(heading, grid);
+          heading.addEventListener('click', (event) => {
+            // A single open section at a time, including on browsers that do not
+            // support <details name="...">. Clicking the open year closes it.
+            event.preventDefault();
+            expandYear(year, { toggle: true });
+          });
           grids.set(year, grid);
-          groups.append(h, grid);
+          archiveGroups.set(year, section);
+          groups.append(section);
         }
         const li = document.createElement('li');
         const btn = document.createElement('button');
