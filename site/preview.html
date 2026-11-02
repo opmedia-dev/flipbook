@@ -21,6 +21,7 @@
   <script type="module">
     import { createFlipbook } from './assets/flipbook.js';
     import { params, applyTheme, loadIssues, assetUrl, formatDate, viewerUrl, toolsParam, reportHeight, showError } from './assets/common.js';
+    import { resolveArchiveLink } from './assets/archive-link.js';
 
     applyTheme();
     reportHeight();
@@ -29,12 +30,7 @@
     // The archive link entered in the embed generator is the destination when
     // the compact magazine title or mobile cover is clicked. The GitHub reader
     // remains the fallback when no valid parish website archive is configured.
-    const suppliedArchive = params.get('link') || '';
-    let archiveLink = '';
-    try {
-      const url = new URL(suppliedArchive);
-      if (url.protocol === 'https:' && url.hostname) archiveLink = url.href;
-    } catch { /* no configured public archive */ }
+    const archiveLink = resolveArchiveLink(params.get('link'));
     // Touchscreen phones need a smaller, predictable preview height than the
     // interactive PDF reader can guarantee inside a narrow Duda iframe.
     // Open the full reader in a new tab when the cover is tapped.
