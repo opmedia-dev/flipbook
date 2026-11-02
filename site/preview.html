@@ -26,6 +26,15 @@
     reportHeight();
     const host = document.getElementById('book');
     const compact = params.get('compact') === '1';
+    // The archive link entered in the embed generator is the destination when
+    // the compact magazine title or mobile cover is clicked. The GitHub reader
+    // remains the fallback when no valid parish website archive is configured.
+    const suppliedArchive = params.get('link') || '';
+    let archiveLink = '';
+    try {
+      const url = new URL(suppliedArchive);
+      if (url.protocol === 'https:' && url.hostname) archiveLink = url.href;
+    } catch { /* no configured public archive */ }
     // Touchscreen phones need a smaller, predictable preview height than the
     // interactive PDF reader can guarantee inside a narrow Duda iframe.
     // Open the full reader in a new tab when the cover is tapped.
@@ -45,11 +54,11 @@
           // In narrow Duda homepage columns the toolbar is intentionally
           // compact; the issue title still opens the full interactive reader.
           const full = document.createElement('a');
-          full.href = viewerUrl(issue);
+          full.href = archiveLink || viewerUrl(issue);
           full.target = '_blank';
           full.rel = 'noopener noreferrer';
           full.className = 'fb-compact-full-link';
-          full.title = 'Open full magazine with all controls';
+          full.title = archiveLink ? 'View the parish magazine archive' : 'Open full magazine with all controls';
           full.textContent = issue.title;
           title.append(full);
         } else {
@@ -57,20 +66,21 @@
         }
         document.getElementById('date').textContent = formatDate(issue);
       }
-      const link = params.get('link');
-      if (link && /^https?:\/\//i.test(link)) {
+      if (archiveLink) {
         const a = document.getElementById('cta-link');
-        a.href = link;
+        a.href = archiveLink;
         a.textContent = params.get('linkText') || 'View all issues';
         document.getElementById('cta').hidden = false;
       }
       if (mobileCover) {
         const anchor = document.createElement('a');
         anchor.className = 'fb-mobile-cover-link';
-        anchor.href = viewerUrl(issue);
+        anchor.href = archiveLink || viewerUrl(issue);
         anchor.target = '_blank';
         anchor.rel = 'noopener noreferrer';
-        anchor.setAttribute('aria-label', `Open full ${issue.title} magazine`);
+        anchor.setAttribute('aria-label', archiveLink
+          ? 'View the parish magazine archive'
+          : `Open full ${issue.title} magazine`);
         if (issue.cover) {
           const cover = document.createElement('img');
           cover.src = assetUrl(issue.cover);
@@ -85,7 +95,7 @@
         }
         const action = document.createElement('span');
         action.className = 'fb-mobile-cover-action';
-        action.textContent = 'Open full magazine ↗';
+        action.textContent = archiveLink ? 'View magazine archive ↗' : 'Open full magazine ↗';
         anchor.append(action);
         host.append(anchor);
       } else {
