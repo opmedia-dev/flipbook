@@ -27,6 +27,7 @@
   <script type="module">
     import { createFlipbook, loadPdf, renderPageToCanvas } from './assets/flipbook.js';
     import { params, applyTheme, loadIssues, assetUrl, formatDate, viewerUrl, toolsParam, reportHeight, postToParent, showError } from './assets/common.js';
+    import { archiveYear, expandArchiveYear } from './assets/archive-years.mjs';
 
     applyTheme();
     reportHeight();
@@ -38,12 +39,6 @@
     let issues = [];
     const archiveGroups = new Map();
 
-    function expandYear(year, { toggle = false } = {}) {
-      const target = archiveGroups.get(year);
-      if (!target) return;
-      const shouldOpen = !toggle || !target.open;
-      for (const group of archiveGroups.values()) group.open = shouldOpen && group === target;
-    }
 
     async function show(issue, { scroll = false } = {}) {
       current?.destroy();
@@ -55,7 +50,7 @@
       document.getElementById('back').hidden = latest;
       document.querySelectorAll('.card').forEach((c) => c.setAttribute('aria-current', String(c.dataset.id === issue.id)));
       // Open the year containing the issue currently displayed in the reader.
-      expandYear(yearOf(issue));
+      expandArchiveYear(archiveGroups, archiveYear(issue));
       if (scroll) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
         postToParent({ type: 'scrollToTop' });
@@ -84,17 +79,13 @@
       } catch { /* leave grey placeholder */ }
     }
 
-    function yearOf(issue) {
-      return issue.group || (issue.added ? String(new Date(issue.added).getUTCFullYear()) : 'Other');
-    }
-
     function buildArchive(list) {
       const groups = document.getElementById('groups');
       const grids = new Map();
       const counts = new Map();
-      for (const issue of list) counts.set(yearOf(issue), (counts.get(yearOf(issue)) || 0) + 1);
+      for (const issue of list) counts.set(archiveYear(issue), (counts.get(archiveYear(issue)) || 0) + 1);
       for (const issue of list) {
-        const year = yearOf(issue);
+        const year = archiveYear(issue);
         let grid = grids.get(year);
         if (!grid) {
           const section = document.createElement('details');
@@ -120,7 +111,7 @@
             // A single open section at a time, including on browsers that do not
             // support <details name="...">. Clicking the open year closes it.
             event.preventDefault();
-            expandYear(year, { toggle: true });
+            expandArchiveYear(archiveGroups, year, { toggle: true });
           });
           grids.set(year, grid);
           archiveGroups.set(year, section);
