@@ -1,4 +1,5 @@
 name: Build and deploy flipbook
+run-name: "Flipbook · ${{ github.event_name == 'schedule' && 'GitHub schedule' || inputs.source || github.event_name }}"
 
 on:
   push:
@@ -11,6 +12,11 @@ on:
         description: Rebuild even if the Google Drive folder is unchanged
         type: boolean
         default: false
+      source:
+        description: What started this run? External schedule uses external-cron
+        type: choice
+        options: [manual, external-cron]
+        default: manual
 
 permissions:
   actions: write
@@ -42,7 +48,7 @@ jobs:
         env:
           GDRIVE_FOLDER_ID: ${{ vars.GDRIVE_FOLDER_ID }}
           GDRIVE_API_KEY: ${{ secrets.GDRIVE_API_KEY }}
-          SITE_URL: ${{ github.event_name == 'schedule' && format('https://{0}.github.io/{1}/', github.repository_owner, github.event.repository.name) || '' }}
+          SITE_URL: ${{ (github.event_name == 'schedule' || inputs.source == 'external-cron') && format('https://{0}.github.io/{1}/', github.repository_owner, github.event.repository.name) || '' }}
           FORCE: ${{ inputs.force || 'false' }}
         run: node scripts/sync-drive.mjs
 
