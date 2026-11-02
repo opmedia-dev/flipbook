@@ -12,7 +12,7 @@ test('mobile cover mode applies only to compact touchscreen phone previews', () 
   assert.match(preview, /compact && window\.matchMedia\('\(max-width: 600px\) and \(pointer: coarse\)'\)\.matches/);
   assert.match(preview, /if \(mobileCover\)/);
   assert.match(preview, /className = 'fb-mobile-cover-link'/);
-  assert.match(preview, /anchor\.href = viewerUrl\(issue\)/);
+  assert.match(preview, /anchor\.href = archiveLink \|\| viewerUrl\(issue\)/);
   assert.match(preview, /anchor\.target = '_blank'/);
   assert.match(preview, /anchor\.rel = 'noopener noreferrer'/);
   assert.match(preview, /else \{\s*await createFlipbook\(host/);

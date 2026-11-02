@@ -5,7 +5,10 @@ be embedded on a Duda site (or any site) with an HTML widget. Hosted for free on
 GitHub Pages, so no server is needed.
 
 - **Home page preview** – `preview.html`: the latest issue as a compact flipbook,
-  with an optional "View all issues" button linking to your issues page.
+  with an optional "View all issues" button linking to your issues page. The
+  compact issue title and touchscreen mobile magazine cover now open that same
+  configured website archive (falling back to the hosted reader if no valid
+  archive URL was supplied).
 - **Issues page** – `library.html`: the latest issue as a large flipbook, with an
   archive of previous issues below, grouped under a **collapsible year heading**
   per Drive subfolder (e.g. `2026`, `2025`). The year containing the current
@@ -15,6 +18,8 @@ GitHub Pages, so no server is needed.
 - **Embed codes** – `index.html`: copy-paste snippets for Duda, with a live estimate of time until the next scheduled Google Drive refresh and a link to GitHub Actions history.
 
 The embed manager displays a countdown to the next 15-minute GitHub Actions schedule slot (00, 15, 30 and 45 minutes past the hour, UTC). It shows the corresponding UK local clock time, adjusting for British Summer Time. The estimate is **not** a guaranteed completion or publication time: GitHub may queue scheduled runs and only redeploys if Drive contents changed. The history link shows the actual last runs and offers a manual workflow trigger.
+
+For more reliable Google Drive checks every 15 minutes, see the [external scheduler setup](docs/external-refresh-scheduler.md). This is an optional third-party account configuration requiring a restricted GitHub Actions token; merging the code does **not** automatically activate it.
 
 Live site: https://opmedia-dev.github.io/flipbook/
 

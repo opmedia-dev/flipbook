@@ -14,10 +14,10 @@ test('homepage generator uses compact 360px iframe; archive remains unchanged', 
   assert.match(generator, /iframe\('library\.html', q, 1400, 'Issues'\)/);
 });
 
-test('compact mode is opt-in and keeps the full-reader title link', () => {
+test('compact mode prefers the configured website archive and retains reader fallback', () => {
   assert.match(preview, /params\.get\('compact'\) === '1'/);
   assert.match(preview, /classList\.toggle\('fb-compact', compact\)/);
-  assert.match(preview, /full\.href = viewerUrl\(issue\)/);
+  assert.match(preview, /full\.href = archiveLink \|\| viewerUrl\(issue\)/);
   assert.match(preview, /tools: compact \? \[\] : toolsParam\(\)/);
 });
 
