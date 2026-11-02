@@ -1,10 +1,12 @@
-// GitHub Actions workflow "Build and deploy flipbook" uses cron */15 * * * *.
-// This predicts the next *scheduled* check, not an exact GitHub start time.
+// External cron-job.org triggers at UTC minutes 05, 20, 35 and 50.
+// GitHub Actions keeps its internal quarter-hour schedule as a fallback.
+// This predicts the next external trigger, not workflow completion.
 const SLOT_MS = 15 * 60 * 1000;
+const OFFSET_MS = 5 * 60 * 1000;
 
 export function nextScheduledRefresh(now = Date.now()) {
   if (!Number.isFinite(now)) throw new TypeError('Expected a finite Unix timestamp');
-  return (Math.floor(now / SLOT_MS) + 1) * SLOT_MS;
+  return (Math.floor((now - OFFSET_MS) / SLOT_MS) + 1) * SLOT_MS + OFFSET_MS;
 }
 
 export function refreshCountdown(now, next) {
