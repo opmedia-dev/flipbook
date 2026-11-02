@@ -12,7 +12,9 @@ GitHub Pages, so no server is needed.
   issue opens automatically; other years stay closed until clicked. Each heading
   shows its issue count, and selecting another year closes the previously open
   year. Clicking an archive cover opens that issue in the flipbook above.
-- **Embed codes** – `index.html`: copy-paste snippets for Duda.
+- **Embed codes** – `index.html`: copy-paste snippets for Duda, with a live estimate of time until the next scheduled Google Drive refresh and a link to GitHub Actions history.
+
+The embed manager displays a countdown to the next 15-minute GitHub Actions schedule slot (00, 15, 30 and 45 minutes past the hour, UTC). It shows the corresponding UK local clock time, adjusting for British Summer Time. The estimate is **not** a guaranteed completion or publication time: GitHub may queue scheduled runs and only redeploys if Drive contents changed. The history link shows the actual last runs and offers a manual workflow trigger.
 
 Live site: https://opmedia-dev.github.io/flipbook/
 
