@@ -7,8 +7,11 @@ GitHub Pages, so no server is needed.
 - **Home page preview** – `preview.html`: the latest issue as a compact flipbook,
   with an optional "View all issues" button linking to your issues page.
 - **Issues page** – `library.html`: the latest issue as a large flipbook, with an
-  archive of previous issues below, grouped under a heading per Drive subfolder
-  (e.g. `2026`, `2025`). Clicking an archive cover opens it in the flipbook.
+  archive of previous issues below, grouped under a **collapsible year heading**
+  per Drive subfolder (e.g. `2026`, `2025`). The year containing the current
+  issue opens automatically; other years stay closed until clicked. Each heading
+  shows its issue count, and selecting another year closes the previously open
+  year. Clicking an archive cover opens that issue in the flipbook above.
 - **Embed codes** – `index.html`: copy-paste snippets for Duda.
 
 Live site: https://opmedia-dev.github.io/flipbook/
