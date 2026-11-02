@@ -32,10 +32,10 @@
     <h1>Flipbook embeds</h1>
     <p>Copy these into a Duda <strong>HTML widget</strong>. Published issues: <strong id="count">…</strong></p>
     <section class="refresh-panel" aria-labelledby="refresh-heading">
-      <h2 id="refresh-heading">Next automatic refresh</h2>
+      <h2 id="refresh-heading">Next external refresh check</h2>
       <p class="refresh-timer"><strong id="refresh-countdown" role="timer" aria-live="off">Calculating…</strong><span>until the next scheduled Google Drive check</span></p>
       <p>Next expected check: <strong id="refresh-time">—</strong> UK time</p>
-      <p class="note">Checks are scheduled every 15 minutes. GitHub Actions may start late, and the site is only rebuilt when changes are detected.</p>
+      <p class="note">cron-job.org triggers at :05, :20, :35 and :50 every hour (UK clock). GitHub may queue each run, and the website publishes only when Drive contents change. GitHub's native schedule remains a fallback.</p>
       <p><a id="refresh-history" href="https://github.com/opmedia-dev/flipbook/actions/workflows/deploy.yml" target="_blank" rel="noopener noreferrer">View refresh history or run a manual check</a></p>
     </section>
 
