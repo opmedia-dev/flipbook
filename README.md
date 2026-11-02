@@ -17,7 +17,7 @@ GitHub Pages, so no server is needed.
   year. Clicking an archive cover opens that issue in the flipbook above.
 - **Embed codes** – `index.html`: copy-paste snippets for Duda, with a live estimate of time until the next scheduled Google Drive refresh and a link to GitHub Actions history.
 
-The embed manager displays a countdown to the next 15-minute GitHub Actions schedule slot (00, 15, 30 and 45 minutes past the hour, UTC). It shows the corresponding UK local clock time, adjusting for British Summer Time. The estimate is **not** a guaranteed completion or publication time: GitHub may queue scheduled runs and only redeploys if Drive contents changed. The history link shows the actual last runs and offers a manual workflow trigger.
+The embed manager counts down to the external cron-job.org check at UTC minutes **05, 20, 35 and 50** (the same minute positions in the UK during GMT and BST). The built-in GitHub Actions schedule at :00, :15, :30 and :45 remains a fallback but is not what the countdown represents. The countdown predicts a trigger opportunity, not successful completion or publication: GitHub may queue a dispatched run and only publishes if Drive contents change. The history link shows actual runs and provides manual triggering.
 
 For more reliable Google Drive checks every 15 minutes, see the [external scheduler setup](docs/external-refresh-scheduler.md). This is an optional third-party account configuration requiring a restricted GitHub Actions token; merging the code does **not** automatically activate it.
 
